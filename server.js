@@ -1,18 +1,24 @@
-// *** Imports
+/****************************
+ Importing
+ ****************************/
 const express = require("express");
 const { start } = require("repl");
 const { Manager } = require("socket.io-client");
 const { isDataView } = require("util/types");
 const { SockID, SocketManager } = require("./SocketManager.js");
 
-// HTTP, SocketIO Init
+/****************************
+ HTTP Socket Initialization
+ ****************************/
 const app = express();
 const http = require("http").createServer(app);
 const socket = require("socket.io")(http, {
     transports: ["polling", "websocket"]
 })
 
-// Server Variables
+/****************************
+ Server Variables
+ ****************************/
 var totalHttpRequests = 0;
 var totalSocketConnectionsEstablished = 0;
 var serverStartDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -20,7 +26,9 @@ var manager = new SocketManager();
 const port = process.env.PORT || 3000;
 
 
-// Socket Listener on defined Port
+/****************************
+ Socket Listener on defined port
+ ****************************/
 http.listen(port, ()=>{
     console.log("Listning to port " + port);
     
@@ -35,27 +43,33 @@ http.listen(port, ()=>{
         currentSocketID.connectionDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
         manager.add(currentSocketID);
         
-        // Message Client with local Time
+        // Send Local Server Time to client;
         socket.emit("Server_SendLocalTime", new Date().toLocaleString());
 
-        // Client sends username
+
+        /******************
+         Receive Listeners
+        *******************/
+
+        // Client Username
         socket.on("Client_SendName", (arg) => {
             console.log(socket.id + " event 'Client_SendName' = " + arg)
             currentSocketID.name = arg;
         });
         
+        // Client Timezone
         socket.on("Client_SendTimezone", (arg) => {
             console.log(socket.id + " event 'Client_SendTimezone' = " + arg)
             currentSocketID.timeZone = arg;
         });
 
-        // Client Sends Message 
+        // Client Message
         socket.on("Client_SendMessage", (arg) => {
             console.log(socket.id + " sent 'hello' = " + arg)
             currentSocketID.msg = arg;
         });
 
-        // Client Sends Message 
+        // Client disconnect request
         socket.on("Client_ConnectionCloseRequest", (arg) => {
             console.log(socket.id + " requesting disconnect");
             socket.disconnect();
@@ -72,28 +86,37 @@ http.listen(port, ()=>{
     
 });
 
-// Generic HTTP-Connect Listener
+/****************************
+ HTTP Request Handling
+ ****************************/
+
+// HTTP-Connect Listener
 http.on("connection", (socket) =>{
     console.log("HTTP Connection");
 });
 
-// GET-Request
+// HTTP-GET Request Answer
 app.get("/",(req,res)=>{
-    var header = "[GET/HTML - Answer] Verteilte Systeme Rockt! 1 in den Chat für meine Ponybros" 
-    var serverVisits = "<br>Server HTTP/Browser visits: " + totalHttpRequests++;
-    var started = "<br> Server started: " + serverStartDate;
-    
-    var currentTime = "<br> Request erhalten am: " + new Date().toLocaleString();
-    
-    var socketInfos = "";
+
+    // Build Reply HTML Message
+    var str_HeaderMessage = "[GET/HTML - Answer] Verteilte Systeme Rockt! 1 in den Chat für meine Ponybros" 
+    var str_ServerVisits = "<br>Server HTTP/Browser visits: " + totalHttpRequests++;
+    var str_ServerStartTime = "<br> Server started: " + serverStartDate;
+    var str_RequestReceivedTime = "<br> Request erhalten am: " + new Date().toLocaleString();
+
+    var str_SocketHistory = "";
     for (var i = 0; i < manager.size(); i++) {
-        socketInfos += manager.arr()[i].toString();
+        str_SocketHistory += manager.arr()[i].toString();
     }
-    
-    
-    
-    var totalSocketConnections = "<br><br> Total Socket Connections Established (on Port " + port + "): " + totalSocketConnectionsEstablished +
+
+    var str_TotalSocketConnectionsAmount = "<br><br> Total Socket Connections Established (on Port " + port + "): " + totalSocketConnectionsEstablished +
         "<br> Socket History:";
-    res.send(header + serverVisits + started + currentTime 
-         + totalSocketConnections + socketInfos);
+
+    // Respond with HTML-Document Text
+    res.send(str_HeaderMessage + 
+        str_ServerVisits + 
+        str_ServerStartTime + 
+        str_RequestReceivedTime +
+        str_TotalSocketConnectionsAmount + 
+        str_SocketHistory);
 });
