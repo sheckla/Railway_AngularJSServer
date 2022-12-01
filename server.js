@@ -6,6 +6,11 @@ const { start } = require("repl");
 const { Manager } = require("socket.io-client");
 const { isDataView } = require("util/types");
 const { SockID, SocketManager } = require("./SocketManager.js");
+const fx = require('fs');
+let data ="lol";
+fx.writeFile("Output.txt", data, (err) => {
+
+});
 
 /****************************
  HTTP Socket Initialization
@@ -44,7 +49,7 @@ http.listen(port, ()=>{
         manager.add(currentSocketID);
         
         // Send Local Server Time to client;
-        socket.emit("Server_SendLocalTime", new Date().toLocaleString());
+        //socket.emit("Server_SendLocalTime", new Date().toLocaleString());
 
 
         /******************
@@ -72,6 +77,13 @@ http.listen(port, ()=>{
         // Client disconnect request
         socket.on("Client_ConnectionCloseRequest", (arg) => {
             console.log(socket.id + " requesting disconnect");
+            socket.disconnect();
+        });
+
+        // Client disconnect request
+        socket.on("Client_InfoQuery", (arg) => {
+            console.log(socket.id + " requesting info");
+            socket.emit("Server_Response_InfoQuery", currentSocketID);
             socket.disconnect();
         });
         
@@ -107,7 +119,12 @@ app.get("/",(req,res)=>{
     var str_SocketHistory = "";
     for (var i = 0; i < manager.size(); i++) {
         str_SocketHistory += manager.arr()[i].toString();
+        fx.writeFile(i+ ".json", JSON.stringify(manager.arr()[i]), (err) => {
+    
+        });
     }
+
+    
 
     var str_TotalSocketConnectionsAmount = "<br><br> Total Socket Connections Established (on Port " + port + "): " + totalSocketConnectionsEstablished +
         "<br> Socket History:";
@@ -119,4 +136,15 @@ app.get("/",(req,res)=>{
         str_RequestReceivedTime +
         str_TotalSocketConnectionsAmount + 
         str_SocketHistory);
+});
+
+// HTTP-GET Request Answer
+app.get("/index",(req,res)=>{
+    // Build Reply HTML Message
+    var str_HeaderMessage = "index" 
+    
+    
+    // Respond with HTML-Document Text
+    res.send(str_HeaderMessage);
+    console.log(res);
 });

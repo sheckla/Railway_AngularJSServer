@@ -30,7 +30,16 @@ class SocketManager {
 
 
 class SockID {
-    constructor(socketNumber, id, name, msg, connectionDate, disconnectionDate, extras, timeZone) {
+    constructor(socketNumber, 
+      id = "",
+      name = "",
+      msg = "", 
+      connectionDate = "", 
+      disconnectionDate = "", 
+      extras = "", 
+      timeZone = "") 
+      {
+
       this.socketNumber = socketNumber;
       this.id = id;
       this.name = name;
