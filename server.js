@@ -77,16 +77,7 @@ http.listen(port, ()=>{
 
         socket.on("Client_StringRequest", (arg) => {
             console.log(socket.id + " string request");
-            var str_HeaderMessage = "[GET/HTML - Answer] Verteilte Systeme Rockt! 1 in den Chat für meine Ponybros" 
-            var str_ServerVisits = "<br>Server HTTP/Browser visits: " + totalHttpRequests++;
-            var str_ServerStartTime = "<br> Server started: " + serverStartDate;
-            var str_RequestReceivedTime = "<br> Request erhalten am: " + new Date().toLocaleString();
-            var str_TotalSocketConnectionsAmount = "<br><br> Total Socket Connections Established (on Port " + port + "): " + totalSocketConnectionsEstablished;
-            var str_SocketHistory = "<br> Socket History:";
-            for (var i = 0; i < manager.size(); i++) {
-                str_SocketHistory += manager.arr()[i].toString();
-            }
-            socket.emit("Client_StringRequest_Answer", str_SocketHistory);
+            socket.emit("Client_StringRequest_Answer", manager.arr());
         });
         
         // Client Disconnects
@@ -111,6 +102,7 @@ http.on("connection", (socket) =>{
 
 // HTTP-GET Request Answer
 app.get("/",(req,res)=>{
+    res.send("");
     return;
     // Build Reply HTML Message
     var str_HeaderMessage = "[GET/HTML - Answer] Verteilte Systeme Rockt! 1 in den Chat für meine Ponybros" 

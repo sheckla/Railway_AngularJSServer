@@ -40,7 +40,7 @@ var messageToServer = "OwO v2";
  ****************************/
 const io = require("socket.io-client");
 var host = "https://socketio-server.up.railway.app/";
-//host = "ws://localhost:3000";
+host = "ws://localhost:3000";
 var socket;
 
 function connect() { 
@@ -62,11 +62,16 @@ socket.on("connect", () => {
     socket.emit("Client_SendName", userName);
     socket.emit("Client_SendMessage", messageToServer);
     socket.emit("Client_SendTimezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
-
+    
     // Receive Listener:  Server Local Time
     socket.on("Server_SendLocalTime", (arg) => {
       console.log(arg);
       console.log("time received! ctrl + c to exit");
+    });
+    
+    socket.emit("Client_StringRequest");
+    socket.on("Client_StringRequest_Answer", (msg) => {
+      console.log(msg);
       socket.emit("Client_ConnectionCloseRequest"); // Request Disconnect
     });
 
