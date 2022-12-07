@@ -6,9 +6,33 @@
 * 3. type 'npm install'
 * 4. node client.js
 * 5. See Socket-Connection from Server at https://socketio-server.up.railway.app/
+
+{
+  "name": "SocketIO",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "DG",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "socket.io": "^3.0.0",
+    "socket.io-client": "^3.0.0"
+  },
+  "engines": {
+    "node": "v12.18.3"
+  }
+}
+
+
+
 */
 var userName = "Applejack";
-var messageToServer = "yeehaw";
+var messageToServer = "OwO v2";
 
 
 /****************************
