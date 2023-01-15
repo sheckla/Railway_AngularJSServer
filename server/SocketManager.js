@@ -1,44 +1,38 @@
 class SocketManager {
-  constructor() {
-    this.sockets = [];
-  }
-
-  get(name) {
-    for (var i = 0; i < this.sockets.length; i++) {
-      if (this.sockets[i].name === name) {
-        return this.sockets[i];
+    constructor() {
+      this.sockets = new Map();
     }
-  }
-  }
 
-  add(SockID) {
-    this.sockets.push(SockID);
-  }
+    get(name) {
+      return this.sockets.get(name);
+    }
 
-  remove(id) {
+    contains(name) {
+      return this.sockets.has(name);
+    }
 
-  }
+    set(name, socket) {
+      this.sockets.set(name, socket);
+    }
 
-  size() {
-    return this.sockets.length;
-  }
+    delete(name) {
+      this.sockets.delete(name);
+    }
 
-  arr() {
-    return this.sockets;
-  }
+    size() {
+      return this.sockets.size;
+    }
+
+    arr() {
+      return Array.from(this.sockets.values());
+    }
 }
 
 
 class SockID {
-    constructor(socketNumber, id, name, msg, connectionDate, disconnectionDate, extras, timeZone) {
-      this.socketNumber = socketNumber;
+    constructor(id, name) {
       this.id = id;
       this.name = name;
-      this.msg = msg;
-      this.connectionDate = connectionDate;
-      this.disconnectionDate = disconnectionDate;
-      this.extras = extras;
-      this.timeZone = timeZone;
     }
 
     toString() {
@@ -46,11 +40,6 @@ class SockID {
       str += "<br>Socket Nr: " + this.socketNumber;
       str += "<br>id=" + this.id;
       str += "<br>Name=" + this.name;
-      str += "<br>Msg=" + this.msg;
-      str += "<br>ConnectionDate=" + this.connectionDate;
-      str += "<br>DisconnectionDate=" + this.disconnectionDate;
-      str += "<br>Timezone=" + this.timeZone;
-      str += "<br>Extras=" + this.extras;
       return str;
     }
   
@@ -58,10 +47,6 @@ class SockID {
       return {
         id: this.id,
         name: this.name,
-        msg: this.msg,
-        connectionDate: this.connectionDate,
-        disconnectionDate: this.disconnectionDate,
-        extras: this.extras
       }
     }
   }

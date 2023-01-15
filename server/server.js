@@ -1,11 +1,23 @@
 /****************************
- Importing
+ Importing & Setup
  ****************************/
+// General libs
 const express = require("express");
 const { start } = require("repl");
 const { Manager } = require("socket.io-client");
 const { isDataView } = require("util/types");
+
+// Game Server specific libs
 const { SockID, SocketManager } = require("./SocketManager.js");
+
+// constant variables
+const port = process.env.PORT || 3000;
+
+// runtime variables
+var receivedHTTPRequests = 0;
+var receivedSocketConnections = 0;
+var startDate_server = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+let socketManager = new SocketManager();
 
 /****************************
  HTTP Socket Initialization
@@ -16,75 +28,50 @@ const socket = require("socket.io")(http, {
     transports: ["polling", "websocket"]
 })
 
-/****************************
- Server Variables
- ****************************/
-var totalHttpRequests = 0;
-var totalSocketConnectionsEstablished = 0;
-var serverStartDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
-var manager = new SocketManager();
-const port = process.env.PORT || 3000;
 
-
-/****************************
- Socket Listener on defined port
- ****************************/
 http.listen(port, ()=>{
-    console.log("Listning to port " + port);
+    log(["Listening to port:", port]);
     
-    // Socket Connection established
+    /****************************
+     Socket Listener on defined port
+     ****************************/
     socket.on("connection", (socket) =>{
-        console.log(socket.id + " connected, total_socketConnections=" + totalSocketConnectionsEstablished++);
-
-        // Add to Socket Data-Manager
+        log([socket.id, "connected"]);
         var currentSocketID = new SockID();
-        currentSocketID.socketNumber = totalSocketConnectionsEstablished;
-        currentSocketID.id = socket.id;
-        currentSocketID.connectionDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
-        manager.add(currentSocketID);
         
-        // Send Local Server Time to client;
-        socket.emit("Server_SendLocalTime", new Date().toLocaleString());
-
-
         /******************
          Receive Listeners
-        *******************/
+         *******************/
+        // Client Username - User Initialization
+        socket.on("Client_SendUsername", (arg) => {
+            var userAlreadyFound = socketManager.contains(arg);
 
-        // Client Username
-        socket.on("Client_SendName", (arg) => {
-            console.log(socket.id + " event 'Client_SendName' = " + arg)
+            // Reject login
+            if (userAlreadyFound == true) {
+                log([arg, "already logged in - rejecting"]);
+                return;
+            }
+
+            // Accept login and assign current user to SocketManager
+            currentSocketID.id = socket.id;
             currentSocketID.name = arg;
+            currentSocketID.connectionDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+            socketManager.set(arg, currentSocketID);
+            socket.emit("Client_SendUsername_Success", !userAlreadyFound);
+            log([arg, "now logged in"]);
         });
         
-        // Client Timezone
-        socket.on("Client_SendTimezone", (arg) => {
-            console.log(socket.id + " event 'Client_SendTimezone' = " + arg)
-            currentSocketID.timeZone = arg;
-        });
-
-        // Client Message
-        socket.on("Client_SendMessage", (arg) => {
-            console.log(socket.id + " sent 'hello' = " + arg)
-            currentSocketID.msg = arg;
-        });
 
         // Client disconnect request
-        socket.on("Client_ConnectionCloseRequest", (arg) => {
-            console.log(socket.id + " requesting disconnect");
+        socket.on("Client_RequestConnectionClose", (arg) => {
+            log([socket.id, "requests disconnect"])
             socket.disconnect();
-        });
-
-        socket.on("Client_StringRequest", (arg) => {
-            console.log(socket.id + " string request");
-            socket.emit("Client_StringRequest_Answer", manager.arr());
         });
         
         // Client Disconnects
         socket.on("disconnect", (arg) => {
-            console.log(socket.id + " disconnected: " + arg);
-            currentSocketID.extras = arg;
-            currentSocketID.disconnectionDate = new Date().toLocaleString() + " " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+            log([currentSocketID.name, "disconnected", arg])
+            socketManager.delete(currentSocketID.name);
         })
         
     });
@@ -95,31 +82,26 @@ http.listen(port, ()=>{
  HTTP Request Handling
  ****************************/
 
-// HTTP-Connect Listener
-http.on("connection", (socket) =>{
-    console.log("HTTP Connection");
-});
-
 // HTTP-GET Request Answer
 app.get("/",(req,res)=>{
     res.send("");
     return;
-    // Build Reply HTML Message
-    var str_HeaderMessage = "[GET/HTML - Answer] Verteilte Systeme Rockt! 1 in den Chat für meine Ponybros" 
-    var str_ServerVisits = "<br>Server HTTP/Browser visits: " + totalHttpRequests++;
-    var str_ServerStartTime = "<br> Server started: " + serverStartDate;
-    var str_RequestReceivedTime = "<br> Request erhalten am: " + new Date().toLocaleString();
-    var str_TotalSocketConnectionsAmount = "<br><br> Total Socket Connections Established (on Port " + port + "): " + totalSocketConnectionsEstablished;
-    var str_SocketHistory = "<br> Socket History:";
-    for (var i = 0; i < manager.size(); i++) {
-        str_SocketHistory += manager.arr()[i].toString();
-    }
-
-    // Respond with HTML-Document Text
-    res.send(str_HeaderMessage + 
-        str_ServerVisits + 
-        str_ServerStartTime + 
-        str_RequestReceivedTime +
-        str_TotalSocketConnectionsAmount + 
-        str_SocketHistory);
 });
+
+// example: log(["message1", "message"])
+function log(messages) {
+    var maxLength = 0;
+    messages.forEach(msg => {
+        var msgString = "" + msg;
+        if (msgString.length > maxLength) {
+            maxLength = msgString.length;
+        }
+    });
+
+    var date = new Date();
+    var logMessage = "[" + date.getHours().toString().padEnd(2) + ":" + date.getMinutes().toString().padEnd(2) + ":" + date.getSeconds().toString().padEnd(2) + "] ";
+    messages.forEach(msg => {
+        logMessage += msg.toString().padEnd(maxLength) + " ";
+    });
+    console.log(logMessage);
+}
