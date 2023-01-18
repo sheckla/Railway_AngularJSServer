@@ -31,21 +31,19 @@ connect();
 socket.on("connect", () => {
   console.log("server connection successful");
 
-
-  // Send to Server:    Information
-  socket.emit("Client_SendUsername", userName);
-  socket.on("Client_SendUsername_Success", (arg) => {
-      if (arg) {
-        console.log("login accepted");
-      } else {
-        console.log("login rejected");
-      }
-  });
-
   // Receive Listener:  Disconnect
   socket.on("disconnect", (arg) => {
     console.log("socket disconnected");
   });
+});
+
+socket.emit("Client_SendUsername", userName);
+socket.on("Client_SendUsername_Success", (arg) => {
+  if (arg) {
+    console.log("login accepted");
+  } else {
+    console.log("login rejected");
+  }
 });
 
 /****************************
