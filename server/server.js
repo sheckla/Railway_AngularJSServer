@@ -30,15 +30,15 @@ u5 = new User();
 u5.name = "Fluttershy";
 u6 = new User();
 u6.name = "Twilight Sparkel";
-lobby1 = new QuizLobby("(Server lobby) Karl Ess Buchclub", u1);
+lobby1 = new QuizLobby("Karl Ess Buchclub", u1);
 lobby1.add(u4);
-lobby2 = new QuizLobby("(Server Lobby) Magical Tree Garden", u2);
+lobby2 = new QuizLobby("Magical Tree Garden", u2);
 lobby2.add(u5);
 lobby2.add(u6);
-lobby3 = new QuizLobby("(Server Lobby) Pumperverein OS", u3);
-lobbyManager.set("(Server lobby) Karl Ess Buchclub", lobby1);
-lobbyManager.set("(Server lobby) Magical Tree Garden", lobby2);
-lobbyManager.set("(Server lobby) Pumperverein OS", lobby3);
+lobby3 = new QuizLobby("Pumperverein OS", u3);
+lobbyManager.set("Karl Ess Buchclub", lobby1);
+lobbyManager.set("Magical Tree Garden", lobby2);
+lobbyManager.set("Pumperverein OS", lobby3);
 // *************************
 
 /****************************
