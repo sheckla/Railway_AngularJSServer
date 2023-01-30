@@ -17,29 +17,9 @@ let userManager = new UniqueMap();
 let lobbyManager = new UniqueMap();
 
 // *************************
-// Open Lobbies for testing
-u1 = new User();
-u1.name = "Rainbow Dash";
-u2 = new User();
-u2.name = "Applejack";
-u3 = new User();
-u3.name = "Pinkie Pie";
-u4 = new User();
-u4.name = "Rarity";
-u5 = new User();
-u5.name = "Fluttershy";
-u6 = new User();
-u6.name = "Twilight Sparkel";
-lobby1 = new QuizLobby("Karl Ess Buchclub", u1);
-lobby1.add(u4);
-lobby2 = new QuizLobby("Magical Tree Garden", u2);
-lobby2.add(u5);
-lobby2.add(u6);
-lobby3 = new QuizLobby("Pumperverein OS", u3);
-lobbyManager.set("Karl Ess Buchclub", lobby1);
-lobbyManager.set("Magical Tree Garden", lobby2);
-lobbyManager.set("Pumperverein OS", lobby3);
+// Lobby Testing
 // *************************
+
 
 /****************************
  HTTP Socket Initialization
@@ -50,14 +30,18 @@ const socket = require("socket.io")(http, {
   transports: ["polling", "websocket"],
 });
 
+/********************************************************
+ Main HTTP/Socket Listener on defined port
+********************************************************/
+broadcastOpenLobbies();
 http.listen(port, () => {
-  log("Listening to port:" + port);
+    log("Listening to port:" + port);
 
-  /****************************
-   Main Socket Listener on defined port
-  ****************************/
-  socket.on("connection", (socket) => {
+    // Socket Connected
+    socket.on("connection", (socket) => {
     logArr([socket.id, "socket connection established"]);
+
+    // Init current client/User
     var currentUser = new User();
     currentUser.socket = socket;
 
@@ -107,8 +91,7 @@ http.listen(port, () => {
       // Lobby available - create
       var quizLobby = new QuizLobby(lobbyName, currentUser);
       lobbyManager.set(lobbyName, quizLobby); // set name and leader
-      currentUser.connectedLobbyName = lobbyName; // assign lobby to user
-      quizLobby.broadcast("CurrentLobbyInformationChanged", quizLobby.lobbyInfo()); // notify calling client with lobbyInfo
+      quizLobby.broadcast("CurrentLobbyInformationChanged", quizLobby.toJSON()); // notify calling client with lobbyInfo
       log("Lobby: " + lobbyName + " has been created");
     });
 
@@ -130,9 +113,8 @@ http.listen(port, () => {
 
       // Lobby exists - client can join
       lobby = lobbyManager.get(lobbyName);
-      lobby.add(currentUser); // add current Client to lobby
-      lobby.broadcast("CurrentLobbyInformationChanged", lobby.lobbyInfo()); // Notify all other users in lobby
-      currentUser.connectedLobbyName = lobbyName; // assign lobby to user
+      lobby.join(currentUser); // add current Client to lobby
+      lobby.broadcast("CurrentLobbyInformationChanged", lobby.toJSON()); // Notify all other users in lobby
       log("User: " + currentUser.name + " joined Lobby: " + lobbyName);
     })
 
@@ -152,32 +134,47 @@ http.listen(port, () => {
     /****************************
      Starting Lobby 
     ****************************/
-     socket.on("Client_LobbyStartRequest", (lobbyName) => {
-      // TODO
+    socket.on("Client_LobbyStartRequest", async (lobbySettings) => {
+      var lobby = lobbyManager.get(lobbySettings.name);
+      lobby.totalQuestionCount = lobbySettings.totalQuestionsAmount;
+      lobby.maxTimerSeconds = lobbySettings.maxTimerSeconds;
+      lobby.difficulty = lobbySettings.difficulty;
+      lobby.categoryName = lobbySettings.category;
+      lobby.fetchQuestions().then(() => {
+        lobby.startQuiz();
+      })
     });
 
+
     /****************************
-     Question Topic Request
+     Submit Answer
     ****************************/
-    socket.on("Client_RequestQuestionTopics", async (lobbyName) => {
-      await lobbyManager.get(lobbyName).fetchQuestions();
-      socket.emit("Client_RequestQuestionTopics_Status", lobbyManager.get(lobbyName).currentQuestionTopics);
+    socket.on('Client_SubmitAnswer', (answer) => {
+      log("User: " + currentUser.name + " submitted answer: " + answer);
+      var lobby = lobbyManager.get(currentUser.connectedLobbyName);
+      lobby.submitAnswer(currentUser, answer);
     })
 
     /****************************
      Clients Disconnect
     ****************************/
     socket.on("disconnect", (arg) => {
+      var user 
       log("User: " + currentUser.name + " disconnected - " + arg);
-
+      
       // Remove from userManager to make username available again
       userManager.delete(currentUser.name);
       log("User: " + currentUser.name + " deleted from UserManager");
-
+      
       handleLobbyLeave(currentUser.connectedLobbyName, currentUser);
     });
   });
 });
+
+
+/********************************************************
+ Util & Helper Functions
+ ********************************************************/
 
 // Handles lobby leaving events and notifies the joined clients
 function handleLobbyLeave(lobbyName, leavingUser) {
@@ -191,28 +188,40 @@ function handleLobbyLeave(lobbyName, leavingUser) {
 
   // Lobby exists - remove client from lobby
   lobby = lobbyManager.get(lobbyName);
-  leavingUser.connectedLobbyName = null;
-  lobby.remove(leavingUser);
+  lobby.leave(leavingUser);
   log("User: " + leavingUser.name + " left Lobby: " + lobbyName);
 
   // Lobby still active with leader - notify all clients in lobby
   if (lobby.leader) {
-    lobby.broadcast("CurrentLobbyInformationChanged", lobby.lobbyInfo());
+    lobby.broadcast("CurrentLobbyInformationChanged", lobby.toJSON());
     return;
   }
 
   // Lobby without leader - delete lobby and kick joined users
   log("Lobby: " + lobbyName + " has no leader. Closing lobby and kicking all users");
   lobby.broadcast("Client_LobbyLeaveRequest_Status", true); // Make all lobby-users leave lobby
+  lobby.close();
   lobbyManager.delete(lobbyName);
 }
 
 function getOpenLobbies() {
   lobbies = [];
   lobbyManager.elements.forEach(lobby => {
-    lobbies.push(lobby.lobbyInfo());
+    lobbies.push(lobby.toJSON());
   })
   return lobbies;
+}
+
+// TODO: only update lobby infoes for all users if change in lobbyManager occured
+async function broadcastOpenLobbies() {
+  setTimeout(() => {
+    userManager.elements.forEach(user => {
+      if (user.socket != null && user.connectedLobbyName == null) {
+        user.socket.emit('CurrentOpenLobbies', getOpenLobbies());
+      }
+    });
+    broadcastOpenLobbies();
+  }, 1000);
 }
 
 

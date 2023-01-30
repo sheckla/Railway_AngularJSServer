@@ -3,6 +3,11 @@ class User {
     this.name = null;
     this.socket = null;
     this.connectedLobbyName = null;
+    this.currentWrongAnswers = 0;
+    this.currentCorrectAnswers = 0;
+    this.currentScore = 0;
+    this.currentStreak = 0;
+    this.answerSubmitted = false;
   }
 
   toString() {
@@ -14,6 +19,11 @@ class User {
   toJSON() {
     return {
       name: this.name,
+      currentScore: this.currentScore,
+      currentStreak: this.currentStreak,
+      answerSubmitted: this.answerSubmitted,
+      currentWrongAnswers: this.currentWrongAnswers,
+      currentCorrectAnswers: this.currentCorrectAnswers,
     }
   }
 }
