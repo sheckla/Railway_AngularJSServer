@@ -19,7 +19,8 @@ let lobbyManager = new UniqueMap();
 // *************************
 // Lobby Testing
 // *************************
-
+var lobby1 = new QuizLobby("peter", new User());
+lobby1.fetchQuestions();
 
 /****************************
  HTTP Socket Initialization

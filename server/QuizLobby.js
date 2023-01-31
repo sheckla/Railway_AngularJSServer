@@ -1,3 +1,4 @@
+const fetch = require('node-fetch-commonjs')
 const { CategoryManager, Category } = require("./CategoryManager");
 const { User } = require("./User");
 
