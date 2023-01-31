@@ -16,6 +16,6 @@
     "socket.io-client": "^3.0.0"
   },
   "engines": {
-    "node": "v12.18.3"
+    "node": "v18.12.1"
   }
 }
