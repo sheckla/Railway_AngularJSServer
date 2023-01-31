@@ -236,6 +236,11 @@ class QuizLobby {
   shuffledQuestionTopic(topic) {
     var answers = this.shuffleArray([topic.correctAnswer, ...topic.falseAnswers]);
     var shuffledTopic = structuredClone(topic);
+    if (global.structuredClone) {
+      shuffledTopic = structuredClone(object)
+    } else {
+      shuffledTopic = JSON.parse(JSON.stringify(object))
+    }
     // Delete sorted topic answer properties
     delete shuffledTopic['correctAnswer'];
     delete shuffledTopic['falseAnswers'];
