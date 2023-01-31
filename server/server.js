@@ -5,9 +5,9 @@
 const express = require("express");
 
 // Game Server specific libs
-const { UniqueMap } = require("./Util/UniqueMap");
-const { User } = require("./Util/User");
-const { QuizLobby } = require("./Util/QuizLobby");
+const { UniqueMap } = require("./UniqueMap");
+const { User } = require("./User");
+const { QuizLobby } = require("./QuizLobby");
 
 // constant variables
 const port = process.env.PORT || 3000;
