@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Client1",
+    "password": "pass1",
+    "totalScore": 62640,
+    "totalPlayedGames": 58
+  },
+  {
+    "name": "Client2",
+    "password": "pass2",
+    "totalScore": 12130,
+    "totalPlayedGames": 29
+  },
+  {
+    "name": "Daniel",
+    "password": "daniel11",
+    "totalScore": 420,
+    "totalPlayedGames": 5
+  },
+  {
+    "name": "Peter",
+    "password": "Willi123",
+    "totalScore": 0,
+    "totalPlayedGames": 0
+  },
+  {
+    "name": "PeterPan",
+    "password": "Hallo123",
+    "totalScore": 2000,
+    "totalPlayedGames": 1
+  }
+]

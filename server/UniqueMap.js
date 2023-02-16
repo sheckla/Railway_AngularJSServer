@@ -22,13 +22,13 @@ class UniqueMap {
   size() {
     return this.elements.size;
   }
-
-  getMatchingArr(ids) {
-    var matching = new Array();
-    for (var i = 0; i < ids.length; i++) {
-      if (this.contains(ids[i])) matching.push(this.get(ids[i]));
-    }
-    return matching;
-  }
+  /* 
+    getMatchingArr(ids) {
+      var matching = new Array();
+      for (var i = 0; i < ids.length; i++) {
+        if (this.contains(ids[i])) matching.push(this.get(ids[i]));
+      }
+      return matching;
+    } */
 }
 module.exports = { UniqueMap }
