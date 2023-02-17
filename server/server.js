@@ -101,7 +101,7 @@ http.listen(port, () => {
                 socketEmit(socket, 'Client_LoginRequest_Status', status_loginRequest); // status mit failed
                 return;
             }
-            
+
             // **** Login request Success ****
             currentUser.name = userPass.name;
             currentUser.password = userPass.password;
@@ -118,13 +118,12 @@ http.listen(port, () => {
             // *** Also pass current Lobby Info & Highscores because User is logged in ***
             socketEmit(socket, 'CurrentOpenLobbies', getOpenLobbies());
             socketEmit(socket, 'CurrentLeaderboard', UserDB.getHighscores(10));
-            console.log(UserDB.getHighscores(10));
             log("User: " + userPass.name + " now logged in with their stored values from DB.");
         });
 
         /****************************
          Client Register
-        ****************************/
+         ****************************/
         socket.on('Client_RegisterRequest', (userPass) => {
             log("receive", userPass.name + " wants to register with password:" + userPass.password);
             var newUser = new User();
@@ -140,12 +139,14 @@ http.listen(port, () => {
 
             // Init User
             socketEmit(socket, 'CurrentOpenLobbies', getOpenLobbies());
+            socketEmit(socket, 'CurrentLeaderboard', UserDB.getHighscores(10));
             currentUser.name = userPass.name;
             currentUser.password = userPass.password;
             log("User: " + currentUser.name + " now registered");
 
             // Save to DB
             UserDB.update(currentUser);
+            Users.set(currentUser.name, currentUser);
         });
 
         /****************************
@@ -155,7 +156,7 @@ http.listen(port, () => {
             log("User: " + currentUser.name + " wants to create Lobby: " + lobbyName);
             var lobbyNameAvailable = !Lobbies.contains(lobbyName);
             socketEmit(socket, 'Client_LobbyCreationRequest_Status', lobbyNameAvailable)
-                // Lobby not available - abort
+            // Lobby not available - abort
             if (!lobbyNameAvailable) {
                 log("Lobby: " + lobbyName + " already exists.");
                 return;
@@ -176,9 +177,15 @@ http.listen(port, () => {
         socket.on("Client_LobbyJoinRequest", (lobbyName) => {
             log("User: " + currentUser.name + " wants to join Lobby: " + lobbyName);
             var lobbyExists = Lobbies.contains(lobbyName);
+            var lobbyNotFull = false;
+            if (lobbyExists) {
+                lobbyNotFull = !Lobbies.get(lobbyName).isLobbyFull();
+            }
+
+            // TODO Check for full lobbies
 
             // Notify calling client
-            socket.emit("Client_LobbyJoinRequest_Status", lobbyExists);
+            socket.emit("Client_LobbyJoinRequest_Status", lobbyExists && lobbyNotFull);
 
             // Lobby doesn't exist to join - abort
             if (!lobbyExists) {
@@ -187,7 +194,7 @@ http.listen(port, () => {
             }
 
             // Lobby exists - client can join
-            lobby = Lobbies.get(lobbyName);
+            var lobby = Lobbies.get(lobbyName);
             lobby.join(currentUser); // add current Client to lobby
             lobby.broadcast("CurrentLobbyUserInfoUpdate", lobby.userInfo()); // Notify all other users in lobby
             socketEmit(socket, 'CurrentLobbyInformationChanged', lobby.toJSON());
@@ -217,7 +224,7 @@ http.listen(port, () => {
         /****************************
          Starting Lobby 
         ****************************/
-        socket.on("Client_LobbyStartRequest", async(lobbySettings) => {
+        socket.on("Client_LobbyStartRequest", async (lobbySettings) => {
             var lobby = Lobbies.get(lobbySettings.name);
             lobby.totalQuestionCount = lobbySettings.totalQuestionsAmount;
             lobby.maxTimerSeconds = lobbySettings.maxTimerSeconds;
@@ -277,22 +284,25 @@ function handleLobbyLeave(lobbyName, leavingUser) {
         return;
     }
 
-    // Lobby exists - remove client from lobby
-    lobby = Lobbies.get(lobbyName);
-    lobby.leave(leavingUser);
-    log("User: " + leavingUser.name + " left Lobby: " + lobbyName);
+    {
+        // Lobby exists - remove client from lobby
+        lobby = Lobbies.get(lobbyName);
+        lobby.leave(leavingUser);
+        log("User: " + leavingUser.name + " left Lobby: " + lobbyName);
 
-    // Lobby still active with leader - notify all clients in lobby
-    if (lobby.leader) {
-        lobby.broadcast("CurrentLobbyUserInfoUpdate", lobby.userInfo());
-        return;
+        // Lobby still active with leader - notify all clients in lobby
+        if (lobby.leader) {
+            lobby.broadcast("CurrentLobbyUserInfoUpdate", lobby.userInfo());
+            broadcastOpenLobbies();
+            return;
+        }
+
+        // Lobby without leader - delete lobby and kick joined users
+        log("Lobby: " + lobbyName + " has no leader. Closing lobby and kicking all users");
+        lobby.broadcast("Client_LobbyLeaveRequest_Status", true); // Make all lobby-users leave lobby
+        lobby.close();
+        Lobbies.delete(lobbyName);
     }
-
-    // Lobby without leader - delete lobby and kick joined users
-    log("Lobby: " + lobbyName + " has no leader. Closing lobby and kicking all users");
-    lobby.broadcast("Client_LobbyLeaveRequest_Status", true); // Make all lobby-users leave lobby
-    lobby.close();
-    Lobbies.delete(lobbyName);
     broadcastOpenLobbies();
 }
 

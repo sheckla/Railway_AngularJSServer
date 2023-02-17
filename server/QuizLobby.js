@@ -153,6 +153,7 @@ class QuizLobby {
     ****************************/
     async startQuiz() {
         // prevent duplicate quiz-starts if already running
+        console.log(this);
         if (this.started) return;
 
         this.resetGame();
@@ -188,9 +189,9 @@ class QuizLobby {
             })
             // Round over
             this.broadcast('LobbyQuestionTopicResults', this.currentAddedUserQuestionScores);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
+            //await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
             this.finishQuestionRound();
-            await new Promise(resolve => setTimeout(resolve, 1001)); // test delay for polling
+            //await new Promise(resolve => setTimeout(resolve, 1001)); // test delay for polling
         }
 
         this.started = false;
@@ -371,12 +372,21 @@ class QuizLobby {
     // (async) fetch questions and wait for response from TriviaDB
     async fetchQuestions() {
         //await new Promise(resolve => setTimeout(resolve, 2000)); // test delay for polling
+        this.currentQuestionIndex = 0;
+        this.currentQuestionTopics = [];
         var url = this.generateFetchLink();
         log("lobby", "\"" + this.name + "\", fetching questions, " + url);
 
         // Fetch from API and add to current Question topics
-        const response = await fetch(url);
-        const data = await response.json();
+        var response = await fetch(url);
+        var data = await response.json();
+
+        if (data.response_code == 1) {
+            log("error polling questions, getting default ones");
+            this.categoryName = "Any";
+            response = await fetch(this.generateFetchLink());
+            data = await response.json();
+        }
 
         this.currentQuestionTopics = Array();
         // Add to questionTopics after questions have been received from API

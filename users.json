@@ -2,20 +2,20 @@
   {
     "name": "Client1",
     "password": "pass1",
-    "totalScore": 119400,
-    "totalPlayedGames": 77
+    "totalScore": 124780,
+    "totalPlayedGames": 79
   },
   {
     "name": "Client2",
     "password": "pass2",
     "totalScore": 14290,
-    "totalPlayedGames": 31
+    "totalPlayedGames": 32
   },
   {
     "name": "Daniel",
     "password": "daniel11",
-    "totalScore": 420,
-    "totalPlayedGames": 5
+    "totalScore": 54760,
+    "totalPlayedGames": 34
   },
   {
     "name": "Peter",
@@ -32,6 +32,78 @@
   {
     "name": "Peter99999",
     "password": "Willi123",
+    "totalScore": 0,
+    "totalPlayedGames": 0
+  },
+  {
+    "name": "PeterDerCoole",
+    "password": "1234",
+    "totalScore": 1790,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Hi123",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 0
+  },
+  {
+    "name": "Test1",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Test2",
+    "password": "1234",
+    "totalScore": 4530,
+    "totalPlayedGames": 2
+  },
+  {
+    "name": "Test5",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Test7",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Test1234",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Test12345",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "12345",
+    "password": "12345",
+    "totalScore": 0,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "123456",
+    "password": "123456",
+    "totalScore": 0,
+    "totalPlayedGames": 0
+  },
+  {
+    "name": "Test25",
+    "password": "1234",
+    "totalScore": 0,
+    "totalPlayedGames": 0
+  },
+  {
+    "name": "Test26",
+    "password": "1234",
     "totalScore": 0,
     "totalPlayedGames": 0
   }
