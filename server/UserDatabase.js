@@ -42,7 +42,14 @@ class UserDatabase {
         const usersString = fs.readFileSync(filePath, encoding);
         const users = JSON.parse(usersString);
         const sortedUsers = users.sort((a, b) => b.totalScore - a.totalScore);
-        return sortedUsers.slice(0, range);
+        // only return needed json-attributes
+        const highscores = sortedUsers.slice(0, range).map(user => {
+            return {
+                name: user.name,
+                totalScore: user.totalScore
+            };
+        });
+        return highscores;
     }
 
     // updates user or appends if user doesn't exist

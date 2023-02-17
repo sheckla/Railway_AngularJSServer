@@ -20,6 +20,16 @@ class QuestionTopic {
     }
 }
 
+class QuestionResult {
+    constructor() {
+        this.user = "";
+        this.addedScore = 0;
+        this.addedStreakScore = 0;
+        this.correct = false;        
+        this.correctAnswer = "";
+    }
+}
+
 /****************************
  Quiz Lobby:
   - Manages leader & joined users
@@ -45,6 +55,10 @@ class QuizLobby {
     currentQuestionIndex = 0;
     shuffledTopic;
     startTimeMeasure;
+    topic;
+
+    // Current Question topic score management
+    currentAddedUserQuestionScores;
 
     // Quiz-Game states
     terminated;
@@ -67,7 +81,7 @@ class QuizLobby {
         this.totalQuestionCount = 10;
         this.categoryName = "Any";
         this.difficulty = "any";
-        this.maxTimerSeconds = 1; // 15
+        this.maxTimerSeconds = 30; // 15
     }
 
     close() {
@@ -150,11 +164,11 @@ class QuizLobby {
         // Loop till all questions handled
         while (!this.isGameFinished() && !this.terminated) {
             // Start round and get current question
-            var topic = this.nextQuestionTopic();
+            this.topic = this.nextQuestionTopic();
             log("lobby", "\"" + this.name + "\", " + "Question: [" + (this.currentQuestionIndex + +1) + "/" + this.totalQuestionCount + "], " +
-                "topic:" + topic.question + ", correctAnswer:" + topic.correctAnswer);
+                "topic:" + this.topic.question + ", correctAnswer:" + this.topic.correctAnswer);
             this.startTimeMeasure = performance.now();
-            this.shuffledTopic = this.shuffledQuestionTopic(topic);
+            this.shuffledTopic = this.shuffledQuestionTopic(this.topic);
             this.broadcast('CurrentLobbyQuestion', this.shuffledTopic);
 
             // Sleep for current Lobby-Timer, break sleep if all answers submitted
@@ -172,9 +186,11 @@ class QuizLobby {
                 }, this.maxTimerSeconds * 1000);
 
             })
-
             // Round over
+            this.broadcast('LobbyQuestionTopicResults', this.currentAddedUserQuestionScores);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
             this.finishQuestionRound();
+            await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
         }
 
         this.started = false;
@@ -221,8 +237,9 @@ class QuizLobby {
             leader: this.leader,
             users: this.joined,
         }
-        this.broadcast('CurrentLobbyUserInfoUpdate', userInfo); // send user info before scores are added
+        this.broadcast('LobbyUserHasSubmittedAnswer', user.name);
 
+        var questionResult = new QuestionResult();
         // Calculate Score
         var answerTime = (performance.now() - this.startTimeMeasure) / 1000;
         var scoreFactor = (1 - this.remapBounds(answerTime, 0, this.maxTimerSeconds, 0, 1));
@@ -253,12 +270,14 @@ class QuizLobby {
         this.joined.forEach(user => {
             user.answerSubmitted = false;
         })
+        var users = [this.leader, ...this.joined];
     }
 
     // Question round finished - add respective scores
     finishQuestionRound() {
         log("lobby", "\"" + this.name + "\", round finished");
         this.resetSubmittedAnswers();
+        this.broadcast('CurrentLobbyUserInfoUpdate', this.userInfo()); 
         this.currentQuestionIndex++;
     }
 
@@ -335,6 +354,7 @@ class QuizLobby {
             difficulty: this.difficulty,
             maxTimerSeconds: this.maxTimerSeconds,
             started: this.started,
+            finished: this.finished,
         }
     }
 

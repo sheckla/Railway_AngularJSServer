@@ -16,6 +16,7 @@ class User {
     this.currentScore = 0;
     this.currentStreak = 0;
     this.answerSubmitted = false;
+    this.questionResult = null;
   }
 
   toString() {

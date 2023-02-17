@@ -79,6 +79,10 @@ http.listen(port, () => {
          Client Login
         ****************************/
         socket.on('Client_LoginRequest', (userPass) => {
+            var status_loginRequest = {
+                success: false,
+            }
+
             log("receive", userPass.name + " wants to log in with password:" + userPass.password);
             var loginSuccessful = false;
             var loggedUser = new User();
@@ -92,28 +96,29 @@ http.listen(port, () => {
                 loginSuccessful = UserDB.validifyPasswordForName(userPass.name, userPass.password);
             }
 
-            var status = {
-                    success: false,
-                }
-                // Abort if login not succesfull
+            // **** Login request failed ****
             if (!loginSuccessful) {
-                socketEmit(socket, 'Client_LoginRequest_Status', status);
+                socketEmit(socket, 'Client_LoginRequest_Status', status_loginRequest); // status mit failed
                 return;
             }
-
-
-            // Accept login and assign current user to SocketManager
+            
+            // **** Login request Success ****
             currentUser.name = userPass.name;
             currentUser.password = userPass.password;
             storedUserValues = UserDB.get(currentUser);
             currentUser.totalScore = storedUserValues.totalScore;
             currentUser.totalPlayedGames = storedUserValues.totalPlayedGames;
             Users.set(currentUser.name, currentUser);
-            status.success = true;
-            status.totalPlayedGames = currentUser.totalPlayedGames;
-            status.totalScore = currentUser.totalScore;
-            socketEmit(socket, 'Client_LoginRequest_Status', status);
+
+            status_loginRequest.success = true;
+            status_loginRequest.totalPlayedGames = currentUser.totalPlayedGames;
+            status_loginRequest.totalScore = currentUser.totalScore;
+            socketEmit(socket, 'Client_LoginRequest_Status', status_loginRequest);
+
+            // *** Also pass current Lobby Info & Highscores because User is logged in ***
             socketEmit(socket, 'CurrentOpenLobbies', getOpenLobbies());
+            socketEmit(socket, 'CurrentLeaderboard', UserDB.getHighscores(10));
+            console.log(UserDB.getHighscores(10));
             log("User: " + userPass.name + " now logged in with their stored values from DB.");
         });
 
@@ -303,13 +308,21 @@ function getOpenLobbies() {
     return lobbies;
 }
 
-// TODO: only update lobby infoes for all users if change in lobbyManager occured
-async function broadcastOpenLobbies() {
+function broadcastOpenLobbies() {
     log('emit', "broadcasting lobbies");
     Users.elements.forEach(user => {
         // Only emit to users currently not in a lobby
         if (user.socket != null && user.connectedLobbyName == null) {
             socketEmit(user.socket, 'CurrentOpenLobbies', getOpenLobbies());
+        }
+    });
+}
+function broadcastCurrentLeaderboard(range) {
+    log('emit', "broadcasting leaderboard");
+    Users.elements.forEach(user => {
+        // Only emit to users currently not in a lobby
+        if (user.socket != null && user.connectedLobbyName == null) {
+            socketEmit(user.socket, 'CurrentLeaderboard', UserDB.getHighscores(range));
         }
     });
 }
