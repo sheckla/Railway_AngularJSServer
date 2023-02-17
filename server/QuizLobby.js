@@ -190,7 +190,7 @@ class QuizLobby {
             this.broadcast('LobbyQuestionTopicResults', this.currentAddedUserQuestionScores);
             await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
             this.finishQuestionRound();
-            await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
+            await new Promise(resolve => setTimeout(resolve, 1001)); // test delay for polling
         }
 
         this.started = false;
