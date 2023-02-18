@@ -20,12 +20,17 @@ class QuestionTopic {
     }
 }
 
-class QuestionResult {
+class UserResult {
     constructor() {
-        this.user = "";
+        this.name = "";
         this.addedScore = 0;
         this.addedStreakScore = 0;
-        this.correct = false;        
+    }
+}
+
+class QuestionTopicResult {
+    constructor() {
+        this.userResults = [] // UserResult
         this.correctAnswer = "";
     }
 }
@@ -56,10 +61,10 @@ class QuizLobby {
     shuffledTopic;
     startTimeMeasure;
     topic;
-
+    
     // Current Question topic score management
-    currentAddedUserQuestionScores;
-
+    questionTopicResult;
+    
     // Quiz-Game states
     terminated;
     started;
@@ -166,6 +171,8 @@ class QuizLobby {
         while (!this.isGameFinished() && !this.terminated) {
             // Start round and get current question
             this.topic = this.nextQuestionTopic();
+            this.questionTopicResult = new QuestionTopicResult();
+            this.questionTopicResult.correctAnswer = this.topic.correctAnswer;
             log("lobby", "\"" + this.name + "\", " + "Question: [" + (this.currentQuestionIndex + +1) + "/" + this.totalQuestionCount + "], " +
                 "topic:" + this.topic.question + ", correctAnswer:" + this.topic.correctAnswer);
             this.startTimeMeasure = performance.now();
@@ -188,10 +195,23 @@ class QuizLobby {
 
             })
             // Round over
-            this.broadcast('LobbyQuestionTopicResults', this.currentAddedUserQuestionScores);
-            //await new Promise(resolve => setTimeout(resolve, 1000)); // test delay for polling
+            var users = [this.leader, ...this.joined];
+            users.forEach((user) => {
+                if (user && user.socket) {
+                    var matchFound = false;
+                    this.questionTopicResult.userResults.forEach((userResult) => {
+                        if ((userResult.name == user.name) && (userResult.addedScore > 0)) matchFound = true
+                    })
+                    if (!matchFound) {
+                        user.currentStreak = 0;
+                        user.currentWrongAnswers++;
+                    }
+                }
+            })
+            await new Promise(resolve => setTimeout(resolve, 500)); // test delay for polling
+            this.broadcast('LobbyQuestionTopicResults', this.questionTopicResult);
+            await new Promise(resolve => setTimeout(resolve, 3000)); // test delay for polling
             this.finishQuestionRound();
-            //await new Promise(resolve => setTimeout(resolve, 1001)); // test delay for polling
         }
 
         this.started = false;
@@ -240,7 +260,7 @@ class QuizLobby {
         }
         this.broadcast('LobbyUserHasSubmittedAnswer', user.name);
 
-        var questionResult = new QuestionResult();
+        var questionResult = new UserResult();
         // Calculate Score
         var answerTime = (performance.now() - this.startTimeMeasure) / 1000;
         var scoreFactor = (1 - this.remapBounds(answerTime, 0, this.maxTimerSeconds, 0, 1));
@@ -250,17 +270,22 @@ class QuizLobby {
             var addedScore = BASE_SCORE * scoreFactor;
             var streakScore = 0;
             if (user.currentStreak >= 1) streakScore = addedScore * 0.5;
-            addedScore = Math.round(addedScore / 10) * 10;
-            streakScore = Math.round(streakScore / 10) * 10;
+            addedScore = Math.round(addedScore / 100) * 100;
+            streakScore = Math.round(streakScore / 100) * 100;
+            if (streakScore < 100) streakScore = 100;
             user.currentScore += addedScore + streakScore;
             user.currentStreak++;
             user.currentCorrectAnswers++;
+            questionResult.addedScore = addedScore;
+            questionResult.addedStreakScore = streakScore;
+            questionResult.name = user.name;
+            this.questionTopicResult.userResults.push(questionResult);
             log("lobby", "\"" + this.name + "\", received Answer from:" + user.name + " is correct, addedScore = " + addedScore + ", streakScore=" +
                 streakScore);
         } else {
             // false - reset streak
-            user.currentStreak = 0;
-            user.currentWrongAnswers++;
+/*             user.currentStreak = 0;
+            user.currentWrongAnswers++; */
             log("lobby", "\"" + this.name + "\", received Answer from:" + user.name + " is false, no score added");
         }
     }
@@ -291,6 +316,7 @@ class QuizLobby {
 
     // Returns question topic with shuffled answers 
     shuffledQuestionTopic(topic) {
+        if (topic.length == 2) return; // true/false topic
         var answers = this.shuffleArray([topic.correctAnswer, ...topic.falseAnswers]);
         var shuffledTopic;
         if (global.structuredClone) {

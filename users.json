@@ -2,20 +2,20 @@
   {
     "name": "Client1",
     "password": "pass1",
-    "totalScore": 124780,
-    "totalPlayedGames": 79
+    "totalScore": 1000,
+    "totalPlayedGames": 15
   },
   {
     "name": "Client2",
     "password": "pass2",
-    "totalScore": 14290,
-    "totalPlayedGames": 32
+    "totalScore": 2000,
+    "totalPlayedGames": 10
   },
   {
     "name": "Daniel",
     "password": "daniel11",
-    "totalScore": 54760,
-    "totalPlayedGames": 34
+    "totalScore": 55760,
+    "totalPlayedGames": 35
   },
   {
     "name": "Peter",
@@ -51,7 +51,7 @@
     "name": "Test1",
     "password": "1234",
     "totalScore": 0,
-    "totalPlayedGames": 1
+    "totalPlayedGames": 2
   },
   {
     "name": "Test2",

@@ -36,21 +36,32 @@ async function testLobbyAndUsers() {
     user2.password = "pass2";
     user2.totalScore = 2000;
     user2.totalPlayedGames = 10;
-    await UserDB.update(user1);
-    await UserDB.update(user2);
+    UserDB.update(user1);
+    UserDB.update(user2);
 
     // Await the update operations before calling validifyPasswordForName
     var loginSuccessful = false;
     UserDB.update(user1);
     UserDB.update(user2);
 
-    var lobby1 = new QuizLobby("peter", user1, UserDB);
-    lobby1.join(user2);
+    var lobby1 = new QuizLobby("1", user1, UserDB);
+    var lobby2 = new QuizLobby("2", user1, UserDB);
+    var lobby3 = new QuizLobby("3", user1, UserDB);
+    var lobby4 = new QuizLobby("4", user1, UserDB);
+    var lobby5 = new QuizLobby("5", user1, UserDB);
+    var lobby6 = new QuizLobby("6", user1, UserDB);
+    Lobbies.set("1", lobby1);
+    Lobbies.set("2", lobby2);
+    Lobbies.set("3", lobby3);
+    Lobbies.set("4", lobby4);
+    Lobbies.set("5", lobby5);
+    Lobbies.set("6", lobby6);
+/*     lobby1.join(user2);
     lobby1.fetchQuestions().then(() => {
         lobby1.startQuiz();
-    })
+    }) */
 }
-//testLobbyAndUsers();
+testLobbyAndUsers();
 
 /****************************
  HTTP Socket Initialization
@@ -117,7 +128,7 @@ http.listen(port, () => {
 
             // *** Also pass current Lobby Info & Highscores because User is logged in ***
             socketEmit(socket, 'CurrentOpenLobbies', getOpenLobbies());
-            socketEmit(socket, 'CurrentLeaderboard', UserDB.getHighscores(10));
+            socketEmit(socket, 'CurrentLeaderboard', UserDB.getHighscores(11));
             log("User: " + userPass.name + " now logged in with their stored values from DB.");
         });
 
@@ -216,7 +227,10 @@ http.listen(port, () => {
             var lobbyExists = Lobbies.contains(lobbyName);
 
             // Notify calling Client
-            socket.emit("Client_LobbyLeaveRequest_Status", lobbyExists);
+            var status ={
+                success: lobbyExists,
+            }
+            socket.emit("Client_LobbyLeaveRequest_Status", status);
 
             handleLobbyLeave(lobbyName, currentUser);
         });
@@ -299,7 +313,11 @@ function handleLobbyLeave(lobbyName, leavingUser) {
 
         // Lobby without leader - delete lobby and kick joined users
         log("Lobby: " + lobbyName + " has no leader. Closing lobby and kicking all users");
-        lobby.broadcast("Client_LobbyLeaveRequest_Status", true); // Make all lobby-users leave lobby
+        var status = {
+            success: true,
+            kick: true,
+        }
+        lobby.broadcast("Client_LobbyLeaveRequest_Status", status); // Make all lobby-users leave lobby
         lobby.close();
         Lobbies.delete(lobbyName);
     }
