@@ -1,110 +1,20 @@
 [
   {
-    "name": "Client1",
-    "password": "pass1",
-    "totalScore": 1000,
-    "totalPlayedGames": 15
-  },
-  {
-    "name": "Client2",
-    "password": "pass2",
-    "totalScore": 2000,
-    "totalPlayedGames": 10
-  },
-  {
     "name": "Daniel",
-    "password": "daniel11",
-    "totalScore": 55760,
-    "totalPlayedGames": 35
+    "password": "daniel",
+    "totalScore": 1100,
+    "totalPlayedGames": 1
+  },
+  {
+    "name": "Applejack",
+    "password": "1234",
+    "totalScore": 3200,
+    "totalPlayedGames": 2
   },
   {
     "name": "Peter",
-    "password": "Willi123",
-    "totalScore": 0,
-    "totalPlayedGames": 0
-  },
-  {
-    "name": "PeterPan",
-    "password": "Hallo123",
-    "totalScore": 2000,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "Peter99999",
-    "password": "Willi123",
-    "totalScore": 0,
-    "totalPlayedGames": 0
-  },
-  {
-    "name": "PeterDerCoole",
-    "password": "1234",
-    "totalScore": 1790,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "Hi123",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 0
-  },
-  {
-    "name": "Test1",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 2
-  },
-  {
-    "name": "Test2",
-    "password": "1234",
-    "totalScore": 4530,
-    "totalPlayedGames": 2
-  },
-  {
-    "name": "Test5",
     "password": "1234",
     "totalScore": 0,
     "totalPlayedGames": 1
-  },
-  {
-    "name": "Test7",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "Test1234",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "Test12345",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "12345",
-    "password": "12345",
-    "totalScore": 0,
-    "totalPlayedGames": 1
-  },
-  {
-    "name": "123456",
-    "password": "123456",
-    "totalScore": 0,
-    "totalPlayedGames": 0
-  },
-  {
-    "name": "Test25",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 0
-  },
-  {
-    "name": "Test26",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 0
   }
 ]

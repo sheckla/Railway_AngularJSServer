@@ -61,7 +61,7 @@ async function testLobbyAndUsers() {
         lobby1.startQuiz();
     }) */
 }
-testLobbyAndUsers();
+//testLobbyAndUsers();
 
 /****************************
  HTTP Socket Initialization
@@ -69,7 +69,7 @@ testLobbyAndUsers();
 const app = express();
 const http = require("http").createServer(app);
 const socket = require("socket.io")(http, {
-    transports: ["polling", "websocket"],
+    transports: ["websocket"],
 });
 
 /********************************************************

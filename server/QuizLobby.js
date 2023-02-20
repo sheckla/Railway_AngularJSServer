@@ -272,7 +272,6 @@ class QuizLobby {
             if (user.currentStreak >= 1) streakScore = addedScore * 0.5;
             addedScore = Math.round(addedScore / 100) * 100;
             streakScore = Math.round(streakScore / 100) * 100;
-            if (streakScore < 100) streakScore = 100;
             user.currentScore += addedScore + streakScore;
             user.currentStreak++;
             user.currentCorrectAnswers++;
