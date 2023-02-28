@@ -1,20 +1,20 @@
 [
   {
     "name": "Daniel",
-    "password": "daniel",
-    "totalScore": 1100,
-    "totalPlayedGames": 1
+    "password": "Daniel",
+    "totalScore": 42000,
+    "totalPlayedGames": 42
   },
   {
-    "name": "Applejack",
-    "password": "1234",
-    "totalScore": 3200,
-    "totalPlayedGames": 2
+    "name": "Mike",
+    "password": "Mike",
+    "totalScore": 69000,
+    "totalPlayedGames": 13
   },
   {
-    "name": "Peter",
-    "password": "1234",
-    "totalScore": 0,
-    "totalPlayedGames": 1
+    "name": "Twilight Sparkle",
+    "password": "Twilight Sparkle",
+    "totalScore": 13370,
+    "totalPlayedGames": 15
   }
 ]

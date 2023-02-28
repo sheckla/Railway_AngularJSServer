@@ -396,7 +396,7 @@ class QuizLobby {
 
     // (async) fetch questions and wait for response from TriviaDB
     async fetchQuestions() {
-        //await new Promise(resolve => setTimeout(resolve, 2000)); // test delay for polling
+        await new Promise(resolve => setTimeout(resolve, 2000)); // test delay for polling
         this.currentQuestionIndex = 0;
         this.currentQuestionTopics = [];
         var url = this.generateFetchLink();

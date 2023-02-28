@@ -1,0 +1,108 @@
+---*** Vorab ***---
+Schon registrierte Nutzer in users.json zeigen
+Test-Delay in Fetchquestions einschalten    - QuizLobby.js, Zeile 399
+Passwort = Nutzername
+---*** Anmeldefunktion ***---
+PC1 'Client1' registrieren                  - name zu kurz
+PC1 'Client1' registrieren                  - passwort zu kurz
+PC1 'Client1' registrieren                  - erfolgreich, Socket erstablished!
+PC1 'Client1' Ausloggen
+--- Registrieren - Name schon vergeben
+PC2 registrieren mit 'Client1'              - schon vergeben
+PC2 einloggen mit 'Client1'                 - passwort falsch
+PC2 einloggen mit 'Client1'                 - Nutzer nun aktiv verwaltet
+--- Login während jemand schon angemeldet
+PC1 'Client1' anmelden                      - schon eingeloggt, Server verwaltet Nutzer schon
+PC2 'Client1' ausloggen                     - Nutzer nun frei
+PC1 'Client1' anmelden                      - erfolgreich, Socket established!
+PC1 nun eingeloggt im Dashboard
+---
+PC2 'Client2' registrieren
+PC2 nun eingeloggt im Dashboard
+
+---*** Dashboardfunktion ***---
+PC1 und PC2 nun beide im Dashboard
+Nutzer erhalten ein zufälliges Profilbild   - Zuordnung durch hash(username)
+Aktuelles Leaderboard wird angezeigt 
+---
+PC1 lobby join & erstellen                  - name zu kurz Fehlermeldung
+PC1 joint 'Lobby1'                          - exestiert nicht
+PC1 erstellt 'Lobby1'
+---
+PC2 sieht Lobby aufploppen                  
+PC2 versucht 'Lobby1' zu erstellen          - 'already exists'
+PC2 joint per ID
+PC1 sieht PC2 joinen
+PC2 leavt
+PC2 loggt aus
+PC2 loggt wieder ein 'Client2'
+PC2 sieht auch bei Login die aktiven Lobbies
+PC2 joint mit Klick auf Card 'Lobby1'
+--- Lobby schließen ---
+PC1 schließt nun Lobby während PC2 drinne ist
+PC1 erhält Popup                            - bestätigen
+PC2 erhält Kick-Benachrichtigung
+Beide nun im Dashboard
+---
+PC1 erstellt wieder 'Lobby1'
+PC2 joint
+
+---*** Lobbyfunktion ***---
+Beide in Lobby
+Lobby Standardeinstellungen vom Server geholt
+Eigener Nutzer = Lila
+Leader = Krone                                  - Kann Starten und Einstellungen ändern
+Leader ändert Einstellungen                     - 45sec, Anime & Manga ;)
+Leader startet Lobby                            - Fragen werden geholt, Spinner erscheint
+
+---*** Ingamefunktion ***---
+Informationen:
+    Header Links:
+        - Lobby: Lobbyname, bleibt gleich
+        - Difficulty
+        - Category
+    Header Mitte:
+        - Question x/x: Aktuelle Frage aus dem Frageindex
+        - Timer mit verfügbarer Zeit
+    Header Links:
+        - Correct
+        - Wrong
+        - Score
+    Nutzerliste Rechts:
+        - Aktuelle Nutzer in der Lobby:
+            - Punktzahl in der Quizrunde
+            - Aktueller Streak
+            - Haken sobald Antwort abgegeben
+            - Ob Richtig oder Falsch beantwortet mit entsprechender erhaltener Punktzahl
+    Frage-infos:
+        - Frage
+        - Antwortmöglichkeiten (4 Antworten oder true/false)
+---
+Einmal Timer auslaufen lassen                   - Frage gilt als falsch beantwortet
+Nachdem alle geantwortet haben wird Timer beendet
+Quizrunde durchspielen              
+Rangliste wird angezeigt
+Interner Timer startet, danach wieder in Lobby
+Rangliste wegklicken
+
+---*** Ingamefunktion - Reinjonen wieder möglich ***---
+PC1 und PC2 wieder in vorheriger Lobby
+Leader startet Lobby mit neuen Einstellungen    - Difficulty nun 'hard'
+PC2 leavt lobby                   
+PC1 spielt paar Fragen alleine weiter
+PC2 joint wieder rein                           - Alle Infos bleiben erhalten, Aktuelle Frageinfos werden geholt
+
+---*** Ingamefunktion - Reinjonen wieder möglich ***---
+PC1 startet Lobby 'Solo1'
+PC2 startet Lobby 'Solo2'
+beide starten
+paar Fragen spielen
+
+---*** Onlinefunktion ***---
+Server schließen
+Fehlermeldung bei clients erscheint
+
+---*** Abschluss ***---
+Server neustarten
+Highscores betrachten
+GG ;)
